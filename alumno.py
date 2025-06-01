@@ -1,3 +1,5 @@
+import re
+
 class Alumno:
     """
     Clase usada para el tratamiento de las notas de los alumnos. Cada uno
@@ -42,3 +44,41 @@ class Alumno:
         completo y la nota media del alumno con un decimal.
         """
         return f'{self.numIden}\t{self.nombre}\t{self.media():.1f}'
+    
+def leeAlumnos(fich_alumnos):
+    """
+    Lee un fichero con los datos de los alumnos y devuelve un diccionario cuta clave
+    es el nombre completo y su valor el objeto Alumno correspondiente.
+
+    El análisis de cada línea se hace mediante expresiones regulares.
+
+    >>> alumnos = leeAlumnos('alumnos.txt')
+    >>> for alumno in alumnos:
+    ...     print(alumnos[alumno])
+    ...
+    171     Blanca Agirrebarrenetse 9.5
+    23      Carles Balcells de Lara 4.9
+    68      David Garcia Fuster     7.0
+    """
+    alumne = {}
+    re_id = r"\s*(?P<ID>\d+)"
+    re_nom = r"\s+(?P<Nom>[^\d]+)"
+    re_nota = r"(?P<Nota>(\s*[0-9.]+)*)"
+    re_alumnos = re.compile(re_id + re_nom + re_nota)
+
+    with open(fich_alumnos, 'rt', encoding='utf-8') as fp_alumnos:
+        for linea in fp_alumnos:
+            match = re.search(re_alumnos, linea)
+            if match is not None:
+                id = int(match['ID'])
+                nom = match['Nom']
+                nota = [float(nota) for nota in match['Nota'].split()]
+                alumne[nom] = Alumno(nom, id, nota)
+    return alumne
+
+resultat = leeAlumnos('alumnos.txt')
+print(resultat)
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE)
